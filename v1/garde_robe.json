@@ -1,0 +1,74 @@
+[
+    {
+        "id": 100,
+        "nom": "sale",
+        "type": "haut"
+    },
+    {
+        "id": 100,
+        "nom": "sale",
+        "type": "bas"
+    },
+    {
+        "id": 100,
+        "nom": "sale",
+        "type": "t-shirt"
+    },
+    {
+        "id": 1,
+        "nom": "Jean Bleu Standard",
+        "type": "bas",
+        "categories": [
+            "decontracte",
+            "toute_saison"
+        ],
+        "chaleur": 5,
+        "nb_portes": 0
+    },
+    {
+        "id": 2,
+        "nom": "T-shirt Blanc Basique",
+        "type": "haut",
+        "categories": [
+            "decontracte",
+            "ete",
+            "interieur"
+        ],
+        "chaleur": 2,
+        "nb_portes": 0
+    },
+    {
+        "id": 3,
+        "nom": "Gros Pull en Laine",
+        "type": "haut",
+        "categories": [
+            "hiver",
+            "confort"
+        ],
+        "chaleur": 9,
+        "nb_portes": 0
+    },
+    {
+        "id": 4,
+        "nom": "Impermeable Jaune",
+        "type": "veste",
+        "categories": [
+            "pluie",
+            "automne"
+        ],
+        "chaleur": 4,
+        "nb_portes": 0
+    },
+    {
+        "id": 5,
+        "nom": "T-shirt Blanc",
+        "type": "t-shirt",
+        "categories": [
+            "decontracte",
+            "ete",
+            "interieur"
+        ],
+        "chaleur": 4,
+        "nb_portes": 0
+    }
+]
