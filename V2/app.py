@@ -81,9 +81,10 @@ def demarrer_application():
             print("\n--- SCANNER IA ---")
             scan = scanner_dossier_images()
 
-            if scan and "erreur" in scan:
+            # On vérifie le type pour être sûr
+            if isinstance(scan, dict) and "erreur" in scan:
                     print(f"{scan['erreur']}")
-            else:
+            elif isinstance(scan, list):
                     for s in scan:
                          print(s)
             mes_vetements, manquants_types = charger_garde_robe()
