@@ -1,0 +1,134 @@
+[
+    {
+        "nom": "Pull Col Roulé Noir",
+        "type": "haut",
+        "couleur": "noir",
+        "style": "chic",
+        "coupe": "droite",
+        "chaleur": 7,
+        "nb_portes": 2,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00304320800-e1.jpg",
+        "id": 1
+    },
+    {
+        "nom": "Pantalon Plissé Large Noir",
+        "type": "bas",
+        "couleur": "noir",
+        "style": "chic",
+        "coupe": "large",
+        "chaleur": 5,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00706242800-e1.jpg",
+        "id": 2
+    },
+    {
+        "nom": "Pantalon large noir plissé",
+        "type": "bas",
+        "couleur": "noir",
+        "style": "chic",
+        "coupe": "large",
+        "chaleur": 5,
+        "nb_portes": 1,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00706950800-e1.jpg",
+        "id": 3
+    },
+    {
+        "nom": "T-shirt Oversize Blanc",
+        "type": "t-shirt",
+        "couleur": "Blanc",
+        "style": "Casual",
+        "coupe": "Oversize",
+        "chaleur": 2,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\01887455250-e1.jpg",
+        "id": 4
+    },
+    {
+        "nom": "Pull Col Rond Beige",
+        "type": "haut",
+        "couleur": "Beige",
+        "style": "Casual chic",
+        "coupe": "Droite",
+        "chaleur": 6,
+        "nb_portes": 2,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\02893364708-a1.jpg",
+        "id": 5
+    },
+    {
+        "nom": "Pull Côtelé Col Zippé",
+        "type": "haut",
+        "couleur": "Bleu marine",
+        "style": "Casual",
+        "coupe": "Droit",
+        "chaleur": 7,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\03332300401-e1.jpg",
+        "id": 6
+    },
+    {
+        "nom": "Pull Ras-du-cou Crème",
+        "type": "haut",
+        "couleur": "Crème",
+        "style": "Casual",
+        "coupe": "Coupe relax",
+        "chaleur": 6,
+        "nb_portes": 1,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\05755325251-e1.jpg",
+        "id": 7
+    },
+    {
+        "nom": "Veste saharienne vert foncé",
+        "type": "veste",
+        "couleur": "Vert foncé",
+        "style": "Casual",
+        "coupe": "Droit",
+        "chaleur": 4,
+        "nb_portes": 3,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\05854020529-e1.jpg",
+        "id": 8
+    },
+    {
+        "nom": "Trench-coat Kaki Double Boutonnage",
+        "type": "veste",
+        "couleur": "Kaki",
+        "style": "Chic",
+        "coupe": "Droit",
+        "chaleur": 7,
+        "nb_portes": 12,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\06861495832-e1.jpg",
+        "id": 9
+    },
+    {
+        "nom": "Pantalon large à pinces gris foncé",
+        "type": "bas",
+        "couleur": "Gris foncé",
+        "style": "Chic",
+        "coupe": "Large à pinces",
+        "chaleur": 6,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\08491405802-e1.jpg",
+        "id": 10
+    },
+    {
+        "nom": "Mocassins Penny en Cuir Marron",
+        "type": "chaussures",
+        "couleur": "marron",
+        "style": "chic",
+        "coupe": "droit",
+        "chaleur": 6,
+        "nb_portes": 13,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\12664620700-e2.jpg",
+        "id": 11
+    },
+    {
+        "nom": "Pantalon Ample Plissé Kaki",
+        "type": "bas",
+        "couleur": "Kaki",
+        "style": "Casual Chic",
+        "coupe": "Ample",
+        "chaleur": 6,
+        "nb_portes": 1,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\pantalon_vert.jpg",
+        "id": 12
+    }
+]
