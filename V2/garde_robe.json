@@ -1,0 +1,112 @@
+[
+    {
+        "nom": "Pull Col Roulé Noir",
+        "type": "haut",
+        "couleur": "Noir",
+        "style": "casual",
+        "coupe": "droit",
+        "chaleur": 6,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00304320800-e1.jpg",
+        "id": 1
+    },
+    {
+        "nom": "Pantalon Large Plissé Noir",
+        "type": "bas",
+        "couleur": "noir",
+        "style": "chic décontracté",
+        "coupe": "large plissé",
+        "chaleur": 5,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00706242800-e1.jpg",
+        "id": 2
+    },
+    {
+        "nom": "Pantalon large noir à pinces",
+        "type": "bas",
+        "couleur": "noir",
+        "style": "chic",
+        "coupe": "large",
+        "chaleur": 5,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00706950800-e1.jpg",
+        "id": 3
+    },
+    {
+        "nom": "T-shirt Oversize Blanc",
+        "type": "t-shirt",
+        "couleur": "Blanc",
+        "style": "casual",
+        "coupe": "oversize",
+        "chaleur": 2,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\01887455250-e1.jpg",
+        "id": 4
+    },
+    {
+        "nom": "Pull Col Rond Beige",
+        "type": "haut",
+        "couleur": "Beige",
+        "style": "Chic",
+        "coupe": "Droit",
+        "chaleur": 7,
+        "nb_portes": 1,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\02893364708-a1.jpg",
+        "id": 5
+    },
+    {
+        "nom": "Pull en maille écrue",
+        "type": "haut",
+        "couleur": "Écru",
+        "style": "Casual",
+        "coupe": "Ample",
+        "chaleur": 7,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\03166330251-e1.jpg",
+        "id": 6
+    },
+    {
+        "nom": "Pull Col Zippé Côtes",
+        "type": "haut",
+        "couleur": "Bleu Marine",
+        "style": "casual",
+        "coupe": "droit",
+        "chaleur": 6,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\03332300401-e1.jpg",
+        "id": 7
+    },
+    {
+        "nom": "Pull en maille uni Crème",
+        "type": "haut",
+        "couleur": "Crème",
+        "style": "casual",
+        "coupe": "coupe décontractée",
+        "chaleur": 7,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\05755325251-e1.jpg",
+        "id": 8
+    },
+    {
+        "nom": "Pantalon large gris à pinces",
+        "type": "bas",
+        "couleur": "Gris foncé",
+        "style": "Chic",
+        "coupe": "Large",
+        "chaleur": 5,
+        "nb_portes": 1,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\08491405802-e1.jpg",
+        "id": 9
+    },
+    {
+        "nom": "Pantalon Large Plissé Kaki",
+        "type": "bas",
+        "couleur": "Kaki",
+        "style": "Chic",
+        "coupe": "Large",
+        "chaleur": 6,
+        "nb_portes": 0,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\pantalon_vert.jpg",
+        "id": 10
+    }
+]
