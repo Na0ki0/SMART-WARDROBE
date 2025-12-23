@@ -83,10 +83,10 @@ def demarrer_application():
 
             # On vérifie le type pour être sûr
             if isinstance(scan, dict) and "erreur" in scan:
-                    print(f"{scan['erreur']}")
+                print(f"{scan['erreur']}")
             elif isinstance(scan, list):
-                    for s in scan:
-                         print(s)
+                for s in scan:
+                    print(s)
             mes_vetements, manquants_types = charger_garde_robe()
             if manquants_types:
                     print(f"Il n'y a plus de vêtements propres pour le(s) type(s) : {', '.join(manquants_types)}")
