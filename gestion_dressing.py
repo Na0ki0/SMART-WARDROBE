@@ -1,5 +1,6 @@
 import json
 import config
+import copy
 from styliste_ia import demander_conseil_styliste
 
 def charger_garde_robe():
@@ -7,7 +8,7 @@ def charger_garde_robe():
         vetements = json.load(f)
         manquants_types = types_sans_propres(vetements)
         return vetements, manquants_types
-    
+
 def porter_vetement(vetements, id_vetement):
     trouve = False
     for v in vetements:
@@ -58,8 +59,6 @@ def choisir_tenue(vetements, temperature, description):
         for v in vetements:
             if v['id'] in reponse_ia['ids_choisis']:
                 tenue.append(v)
-        for v in tenue:
-            porter_vetement(vetements, v['id'])
         return tenue
     elif reponse_ia and "erreur" in reponse_ia:
         return {"erreur": f"{reponse_ia['erreur']}"}
@@ -67,8 +66,30 @@ def choisir_tenue(vetements, temperature, description):
         return {"erreur": "L'IA n'a pas trouvé d'inspiration..."}
 
 def prevision_semaine(vetements, date, temperature, description_meteo):
+    """
+    Génère 5 à 7 tenues en simulant l'usure des vêtements jour après jour.
+    Ne sauvegarde rien.
+    """
+    # 1. On crée une copie pour la simulation (pour ne pas modifier la vraie liste tout de suite)
+    vetements_simules = copy.deepcopy(vetements)
+    
     tenues_semaine = []
+    
+    # 2. On boucle sur chaque jour
     for i in range(len(date)):
-        tenue = choisir_tenue(vetements, temperature[i], description_meteo[i])
+        # On demande une tenue en utilisant le stock "simulé"
+        # L'IA verra que le jean porté le lundi (i=0) est "sale" pour le mardi (i=1)
+        tenue = choisir_tenue(vetements_simules, temperature[i], description_meteo[i])
+        
         tenues_semaine.append(tenue)
+        
+        # 3. Si une tenue valide est trouvée, on la marque comme portée DANS LA SIMULATION
+        if isinstance(tenue, list):
+            for v_choisi in tenue:
+                # On retrouve le vêtement dans la liste simulée pour incrémenter son compteur
+                for v_stock in vetements_simules:
+                    if v_stock['id'] == v_choisi['id']:
+                        v_stock['nb_portes'] += 1
+                        break
+                        
     return tenues_semaine

@@ -6,7 +6,7 @@
         "style": "chic",
         "coupe": "droite",
         "chaleur": 7,
-        "nb_portes": 2,
+        "nb_portes": 3,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\00304320800-e1.jpg",
         "id": 1
     },
@@ -39,7 +39,7 @@
         "style": "Casual",
         "coupe": "Oversize",
         "chaleur": 2,
-        "nb_portes": 0,
+        "nb_portes": 1,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\01887455250-e1.jpg",
         "id": 4
     },
@@ -50,7 +50,7 @@
         "style": "Casual chic",
         "coupe": "Droite",
         "chaleur": 6,
-        "nb_portes": 2,
+        "nb_portes": 3,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\02893364708-a1.jpg",
         "id": 5
     },
@@ -61,7 +61,7 @@
         "style": "Casual",
         "coupe": "Droit",
         "chaleur": 7,
-        "nb_portes": 0,
+        "nb_portes": 3,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\03332300401-e1.jpg",
         "id": 6
     },
@@ -83,7 +83,7 @@
         "style": "Casual",
         "coupe": "Droit",
         "chaleur": 4,
-        "nb_portes": 3,
+        "nb_portes": 4,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\05854020529-e1.jpg",
         "id": 8
     },
@@ -94,7 +94,7 @@
         "style": "Chic",
         "coupe": "Droit",
         "chaleur": 7,
-        "nb_portes": 12,
+        "nb_portes": 17,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\06861495832-e1.jpg",
         "id": 9
     },
@@ -105,7 +105,7 @@
         "style": "Chic",
         "coupe": "Large à pinces",
         "chaleur": 6,
-        "nb_portes": 0,
+        "nb_portes": 3,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\08491405802-e1.jpg",
         "id": 10
     },
@@ -116,7 +116,7 @@
         "style": "chic",
         "coupe": "droit",
         "chaleur": 6,
-        "nb_portes": 13,
+        "nb_portes": 15,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\12664620700-e2.jpg",
         "id": 11
     },
@@ -127,8 +127,19 @@
         "style": "Casual Chic",
         "coupe": "Ample",
         "chaleur": 6,
-        "nb_portes": 1,
+        "nb_portes": 3,
         "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\pantalon_vert.jpg",
         "id": 12
+    },
+    {
+        "nom": "Mocassins à pampilles noirs",
+        "type": "chaussures",
+        "couleur": "noir",
+        "style": "casual chic",
+        "coupe": "classique",
+        "chaleur": 3,
+        "nb_portes": 3,
+        "chemin_image": "C:\\Users\\bapti\\Documents\\Projet perso\\SMART-WARDROBE\\images\\image.jpg",
+        "id": 13
     }
 ]

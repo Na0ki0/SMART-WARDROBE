@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from gestion_donnees import ajouter_ville, recuperer_villes, supprimer_ville
 from meteo_service import obtenir_meteo_actuelle, obtenir_prevision_meteo, analyser_meteo
-from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement
+from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement, porter_vetement
 from scanner_ia import scanner_dossier_images
 import config
 from PIL import Image
@@ -126,24 +126,122 @@ if menu == "🏠 Accueil & Styliste":
             st.markdown("---")
             
             # 2. STYLISTE IA
+            # --- 2. STYLISTE IA (INTERACTIF) ---
             st.header("🤖 Le Styliste IA")
-            if st.button("✨ Suggère-moi une tenue pour demain !"):
-                with st.spinner("L'IA analyse tes vêtements et la météo..."):
-                    # On appelle ton cerveau IA
-                    vetements_actuels, _ = charger_garde_robe()
-                    tenue = choisir_tenue(vetements_actuels, temp[0], desc[0])
-                    afficher_tenue(tenue, date[0])
-                    st.success("Bonne journée ! 😎 (Tenue marquée comme portée)")
-            if st.button("✨ Suggère-moi une tenue pour La semaine !"):
-                with st.spinner("L'IA analyse tes vêtements et la météo..."):
-                    # On appelle ton cerveau IA
-                    vetements_actuels, _ = charger_garde_robe()
-                    tenues_semaine = prevision_semaine(vetements_actuels, date, temp, desc)
-                    for i in range(len(tenues_semaine)):
-                        tenue = tenues_semaine[i]
-                        afficher_tenue(tenue, date[i])
-                        st.markdown("---")        
-                    st.success("Bonne journée ! 😎 (Tenue marquée comme portée)")
+            
+            # A. Le bouton pour lancer la réflexion
+            # On ne lance l'IA que si on n'a pas déjà une proposition en attente
+            if 'proposition_ia' not in st.session_state:
+                if st.button("✨ Suggère-moi une tenue pour aujourd'hui !"):
+                    with st.spinner("L'IA analyse tes vêtements et la météo..."):
+                        # Appel à l'IA
+                        vetements_actuels, _ = charger_garde_robe()
+                        tenue_proposee = choisir_tenue(vetements_actuels, temp[0], desc[0])
+                        
+                        # On stocke le résultat en mémoire pour qu'il ne disparaisse pas
+                        st.session_state['proposition_ia'] = tenue_proposee
+                        st.rerun() # On recharge pour afficher le résultat
+
+            # B. Zone de Validation (S'affiche uniquement si une proposition existe en mémoire)
+            if 'proposition_ia' in st.session_state:
+                tenue = st.session_state['proposition_ia']
+                
+                # On utilise ta fonction d'affichage existante
+                afficher_tenue(tenue, date[0])
+                
+                # Si l'IA n'a pas renvoyé d'erreur, on affiche les boutons de choix
+                if not (isinstance(tenue, dict) and "erreur" in tenue):
+                    st.info("Cette tenue te convient-elle ?")
+                    
+                    col_oui, col_non = st.columns(2)
+                    
+                    with col_oui:
+                        # --- BOUTON : J'ACCEPTE ---
+                        if st.button("✅ Oui, je porte ça !", use_container_width=True):
+                            # C'est MAINTENANT qu'on enregistre dans la base de données
+                            for v in tenue:
+                                porter_vetement(vetements, v['id'])
+                            
+                            st.balloons() # Petite fête
+                            st.success("C'est noté ! Tenue enregistrée et vêtements marqués comme portés.")
+                            
+                            # On vide la mémoire pour pouvoir recommencer demain
+                            del st.session_state['proposition_ia']
+                            
+                            # Petit délai pour lire le message puis rechargement
+                            import time
+                            time.sleep(2)
+                            st.rerun()
+
+                    with col_non:
+                        # --- BOUTON : JE REFUSE ---
+                        if st.button("❌ Non, propose autre chose", use_container_width=True):
+                            # On ne fait rien d'autre que supprimer la proposition
+                            del st.session_state['proposition_ia']
+                            st.warning("Proposition ignorée. Tu peux relancer l'IA !")
+                            st.rerun()
+                
+                else:
+                    # Si c'était une erreur (ex: pas de vêtements propres), on ajoute un bouton pour effacer le message
+                    if st.button("Réessayer"):
+                        del st.session_state['proposition_ia']
+                        st.rerun()
+
+            # --- C. PARTIE SEMAINE (INTERACTIF) ---
+            if 'proposition_semaine' not in st.session_state:
+                if st.button("📅 Planifie ma semaine complète !"):
+                    with st.spinner("L'IA organise ta semaine (simulation de l'usure incluse)..."):
+                        # Appel à la fonction de simulation
+                        vetements_actuels, _ = charger_garde_robe()
+                        # Note : Assure-toi que 'date', 'temp', 'desc' sont bien disponibles (récupérés plus haut dans ton code météo)
+                        resultat_semaine = prevision_semaine(vetements_actuels, date, temp, desc)
+                        
+                        st.session_state['proposition_semaine'] = resultat_semaine
+                        st.rerun()
+
+            # Affichage de la validation SEMAINE
+            if 'proposition_semaine' in st.session_state:
+                st.subheader("🗓️ Voici le planning proposé :")
+                
+                tenues_semaine = st.session_state['proposition_semaine']
+                
+                # Affichage jour par jour
+                # On utilise 'date' qui vient de la météo (assure-toi qu'elle est dispo dans le scope)
+                for i, tenue_jour in enumerate(tenues_semaine):
+                    if i < len(date): # Sécurité index
+                        st.markdown(f"#### {date[i]}")
+                        afficher_tenue(tenue_jour, date[i])
+                        st.markdown("---")
+
+                st.info("Veux-tu valider ce planning ? (Cela marquera tous ces vêtements comme portés)")
+
+                col_valid_sem, col_refus_sem = st.columns(2)
+
+                with col_valid_sem:
+                    if st.button("✅ Valider la semaine", use_container_width=True):
+                        # C'est ICI qu'on sauvegarde tout d'un coup
+                        vetements_a_jour, _ = charger_garde_robe()
+                        
+                        count_vetements = 0
+                        for tenue in tenues_semaine:
+                            if isinstance(tenue, list):
+                                for v in tenue:
+                                    porter_vetement(vetements_a_jour, v['id'])
+                                    count_vetements += 1
+                        
+                        st.balloons()
+                        st.success(f"Planning enregistré ! {count_vetements} vêtements marqués.")
+                        del st.session_state['proposition_semaine']
+                        
+                        import time
+                        time.sleep(2)
+                        st.rerun()
+
+                with col_refus_sem:
+                    if st.button("❌ Refuser tout", use_container_width=True):
+                        st.warning("Planning annulé.")
+                        del st.session_state['proposition_semaine']
+                        st.rerun()
         else:
             st.warning("Impossible de récupérer la météo. Vérifie le nom de la ville.")
 
