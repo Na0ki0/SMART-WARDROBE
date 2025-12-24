@@ -21,5 +21,6 @@ URL_METEO = "http://api.openweathermap.org/data/2.5/"
 MODEL = "gemini-2.5-flash" 
 
 # Données utilisateur
+FICHIER_USERS = "users.json"
 FICHIER_PREFERENCES = "donnees_app.json"
 VILLE_DEFAULT = "Paris"

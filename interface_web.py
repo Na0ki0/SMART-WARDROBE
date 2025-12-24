@@ -4,6 +4,7 @@ from gestion_donnees import ajouter_ville, recuperer_villes, supprimer_ville
 from meteo_service import obtenir_meteo_actuelle, obtenir_prevision_meteo, analyser_meteo
 from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement, porter_vetement
 from scanner_ia import scanner_dossier_images
+from authentification import verifier_connexion, creer_compte
 import config
 from PIL import Image
 
@@ -39,6 +40,53 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# --- GESTION DE SESSION (LOGIN) ---
+if 'logged_in' not in st.session_state:
+    st.session_state['logged_in'] = False
+    st.session_state['username'] = None
+
+# SI L'UTILISATEUR N'EST PAS CONNECTÉ, ON AFFICHE JUSTE LE LOGIN
+if not st.session_state['logged_in']:
+    st.title("🔐 Smart Wardrobe - Connexion")
+    st.info("Connecte-toi pour accéder à ta garde-robe personnelle.")
+    
+    tab_connexion, tab_inscription = st.tabs(["Se connecter", "Créer un compte"])
+    
+    with tab_connexion:
+        user_input = st.text_input("Nom d'utilisateur", key="login_user")
+        pass_input = st.text_input("Mot de passe", type="password", key="login_pass")
+        
+        if st.button("Se connecter"):
+            if verifier_connexion(user_input, pass_input):
+                st.session_state['logged_in'] = True
+                st.session_state['username'] = user_input
+                st.success("Connexion réussie ! (Rechargement...)")
+                st.rerun()
+            else:
+                st.error("Identifiants incorrects.")
+
+    with tab_inscription:
+        new_user = st.text_input("Choisis un pseudo", key="new_user")
+        new_pass = st.text_input("Choisis un mot de passe", type="password", key="new_pass")
+        
+        if st.button("S'inscrire"):
+            succes, message = creer_compte(new_user, new_pass)
+            if succes:
+                st.success(message)
+            else:
+                st.warning(message)
+    
+    st.stop() # 🛑 ARRÊTE LE SCRIPT ICI SI PAS CONNECTÉ
+
+# --- BARRE LATÉRALE : INFO UTILISATEUR ---
+username = st.session_state['username']
+st.sidebar.caption(f"👤 Connecté en tant que : **{username}**")
+
+if st.sidebar.button("Déconnexion"):
+    st.session_state['logged_in'] = False
+    st.session_state['username'] = None
+    st.rerun()
+
 # --- SIDEBAR (Menu) ---
 st.sidebar.title("👔 Smart Wardrobe")
 menu = st.sidebar.radio(
@@ -48,7 +96,7 @@ menu = st.sidebar.radio(
 
 st.sidebar.markdown("---")
 # 1. Chargement des villes depuis la DB générique
-liste_villes = recuperer_villes()
+liste_villes = recuperer_villes(username)
 
 # 2. Gestion de l'index par défaut
 try:
@@ -73,7 +121,7 @@ if choix_ville == "⚙️ Gérer mes villes...":
         btn_ajout = st.form_submit_button("Ajouter")
         
         if btn_ajout and nouvelle:
-            succes, msg = ajouter_ville(nouvelle)
+            succes, msg = ajouter_ville(nouvelle, username)
             if succes:
                 st.success(msg)
                 st.rerun()
@@ -83,7 +131,7 @@ if choix_ville == "⚙️ Gérer mes villes...":
     # SUPPRESSION
     ville_a_supprimer = st.sidebar.selectbox("Retirer une ville", liste_villes)
     if st.sidebar.button("🗑️ Supprimer la ville"):
-        supprimer_ville(ville_a_supprimer)
+        supprimer_ville(ville_a_supprimer, username)
         st.sidebar.success(f"{ville_a_supprimer} retirée.")
         st.rerun()
         
@@ -93,14 +141,14 @@ else:
 
 # Chargement des données au démarrage
 if 'vetements' not in st.session_state:
-    vetements, manquants = charger_garde_robe()
+    vetements, manquants = charger_garde_robe(username)
     st.session_state['vetements'] = vetements
 
 # --- PAGE 1 : ACCUEIL & STYLISTE ---
 if menu == "🏠 Accueil & Styliste":
     st.title(f"Bonjour ! Météo à {ville}")
     
-    vetements, manquants = charger_garde_robe()
+    vetements, manquants = charger_garde_robe(username)
 
     # 1. MÉTÉO
     if ville:
@@ -132,10 +180,10 @@ if menu == "🏠 Accueil & Styliste":
             # A. Le bouton pour lancer la réflexion
             # On ne lance l'IA que si on n'a pas déjà une proposition en attente
             if 'proposition_ia' not in st.session_state:
-                if st.button("✨ Suggère-moi une tenue pour aujourd'hui !"):
+                if st.button("✨ Suggère-moi une tenue pour demain !"):
                     with st.spinner("L'IA analyse tes vêtements et la météo..."):
                         # Appel à l'IA
-                        vetements_actuels, _ = charger_garde_robe()
+                        vetements_actuels, _ = charger_garde_robe(username)
                         tenue_proposee = choisir_tenue(vetements_actuels, temp[0], desc[0])
                         
                         # On stocke le résultat en mémoire pour qu'il ne disparaisse pas
@@ -160,7 +208,7 @@ if menu == "🏠 Accueil & Styliste":
                         if st.button("✅ Oui, je porte ça !", use_container_width=True):
                             # C'est MAINTENANT qu'on enregistre dans la base de données
                             for v in tenue:
-                                porter_vetement(vetements, v['id'])
+                                porter_vetement(username, v['id'])
                             
                             st.balloons() # Petite fête
                             st.success("C'est noté ! Tenue enregistrée et vêtements marqués comme portés.")
@@ -192,7 +240,7 @@ if menu == "🏠 Accueil & Styliste":
                 if st.button("📅 Planifie ma semaine complète !"):
                     with st.spinner("L'IA organise ta semaine (simulation de l'usure incluse)..."):
                         # Appel à la fonction de simulation
-                        vetements_actuels, _ = charger_garde_robe()
+                        vetements_actuels, _ = charger_garde_robe(username)
                         # Note : Assure-toi que 'date', 'temp', 'desc' sont bien disponibles (récupérés plus haut dans ton code météo)
                         resultat_semaine = prevision_semaine(vetements_actuels, date, temp, desc)
                         
@@ -220,13 +268,13 @@ if menu == "🏠 Accueil & Styliste":
                 with col_valid_sem:
                     if st.button("✅ Valider la semaine", use_container_width=True):
                         # C'est ICI qu'on sauvegarde tout d'un coup
-                        vetements_a_jour, _ = charger_garde_robe()
+                        vetements_a_jour, _ = charger_garde_robe(username)
                         
                         count_vetements = 0
                         for tenue in tenues_semaine:
                             if isinstance(tenue, list):
                                 for v in tenue:
-                                    porter_vetement(vetements_a_jour, v['id'])
+                                    porter_vetement(username, v['id'])
                                     count_vetements += 1
                         
                         st.balloons()
@@ -249,7 +297,7 @@ if menu == "🏠 Accueil & Styliste":
 elif menu == "👗 Ma Garde-Robe":
     st.title("Mon Dressing")
     
-    vetements, manquants = charger_garde_robe()
+    vetements, manquants = charger_garde_robe(username)
     
     # Filtres
     filtre_type = st.multiselect("Filtrer par type", ["haut", "bas", "chaussures", "veste", "t-shirt"])
@@ -284,7 +332,7 @@ elif menu == "👗 Ma Garde-Robe":
 elif menu == "🧺 Buanderie":
     st.title("🧺 Ma Buanderie")
     
-    vetements, manquants = charger_garde_robe()
+    vetements, manquants = charger_garde_robe(username)
     
     # --- 1. IDENTIFICATION DU LINGE SALE ---
     linge_sale = []
@@ -315,7 +363,7 @@ elif menu == "🧺 Buanderie":
             if st.button("⚡ Tout laver immédiatement"):
                 with st.spinner("Grand nettoyage..."):
                     for v in linge_sale:
-                        laver_vetement(vetements, v['id'])
+                        laver_vetement(username, v['id'])
                 st.success("Tout est propre !")
                 st.rerun()
             
@@ -350,7 +398,7 @@ elif menu == "🧺 Buanderie":
                 if st.button("🧼 LAVER LE PANIER", type="primary"):
                     with st.spinner("Lavage en cours..."):
                         for v in panier_a_laver:
-                            laver_vetement(vetements, v['id'])
+                            laver_vetement(username, v['id'])
                     st.balloons()
                     st.toast("Panier lavé avec succès !")
                     st.rerun()
@@ -391,9 +439,11 @@ elif menu == "📸 Scanner / Ajouter":
                 if st.button("💾 Valider et Enregistrer l'image"):
                     
                     # A. Sauvegarde
-                    chemin_temp = os.path.join("images", fichier_upload.name)
-                    if not os.path.exists("images"):
-                        os.makedirs("images")
+                    dossier_user_images = os.path.join("data", username, "images") # Dossier perso
+                    if not os.path.exists(dossier_user_images):
+                        os.makedirs(dossier_user_images)
+
+                    chemin_temp = os.path.join(dossier_user_images, fichier_upload.name)
                     
                     with open(chemin_temp, "wb") as f:
                         f.write(fichier_upload.getbuffer())
@@ -409,7 +459,7 @@ elif menu == "📸 Scanner / Ajouter":
     with tab2:
         with st.spinner("Scan automatique de toutes les images du dossier `/images`."):
             if st.button("Lancer le Scan complet"):
-                logs = scanner_dossier_images()
+                logs = scanner_dossier_images(username)
                 
                 # Affichage des logs
                 if isinstance(logs, dict) and "erreur" in logs:
