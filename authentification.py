@@ -1,58 +1,56 @@
-import json
 import os
 import hashlib
-import shutil
 import config
-
-# Fichier qui contient la liste des utilisateurs et mots de passe
-FICHIER_USERS = config.FICHIER_USERS
+from firebase_admin import firestore
 
 def hash_mdp(password):
-    """Transforme le mot de passe en suite de chiffres/lettres incompréhensible (SHA-256)"""
+    """Securité : On ne stocke jamais les mots de passe en clair."""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def charger_users():
-    """Charge la liste des utilisateurs"""
-    if not os.path.exists(FICHIER_USERS):
-        return {}
-    try:
-        with open(FICHIER_USERS, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return {}
-
 def creer_compte(username, password):
-    """Crée un utilisateur et SON dossier personnel"""
-    users = charger_users()
-    
-    # 1. Vérif si l'utilisateur existe déjà
-    if username in users:
-        return False, "Cet utilisateur existe déjà."
+    """Crée un utilisateur dans Firestore et son dossier d'images local."""
     
     if not username or not password:
         return False, "Pseudo et mot de passe obligatoires."
-    
-    # 2. Création du dossier de données personnel
-    # Structure : data/pseudo_utilisateur/
-    dossier_perso = os.path.join("data", username)
-    dossier_images = os.path.join(dossier_perso, "images")
-    
-    if not os.path.exists(dossier_perso):
-        os.makedirs(dossier_perso)     # Crée data/paul
-        os.makedirs(dossier_images)    # Crée data/paul/images
-    
-    # 3. Enregistrement dans users.json
-    users[username] = hash_mdp(password)
-    
-    with open(FICHIER_USERS, 'w', encoding='utf-8') as f:
-        json.dump(users, f, indent=4)
-    
-    return True, f"Compte {username} créé ! Connecte-toi."
+
+    # 1. Référence au document utilisateur dans la collection 'users'
+    doc_ref = config.db.collection("users").document(username)
+
+    # 2. Vérifier si l'utilisateur existe déjà dans le Cloud
+    if doc_ref.get().exists:
+        return False, "Ce pseudo est déjà pris."
+
+    # 3. Création du dossier LOCAL pour les images (Transition V5 Phase 1)
+    # On garde ça pour l'instant car on n'a pas encore fait la Phase 2 (Cloudinary)
+    dossier_images = os.path.join("data", username, "images")
+    if not os.path.exists(dossier_images):
+        os.makedirs(dossier_images)
+
+    # 4. Enregistrement dans Google Firestore
+    # On crée le document avec le mot de passe hashé ET les préférences par défaut
+    try:
+        doc_ref.set({
+            "password": hash_mdp(password),
+            "villes_favorites": ["Paris", "Lyon"],  # On initialise direct ici !
+            "date_creation": firestore.SERVER_TIMESTAMP
+        })
+        return True, f"Compte {username} créé dans le Cloud ! Connecte-toi."
+    except Exception as e:
+        return False, f"Erreur connexion Cloud : {e}"
 
 def verifier_connexion(username, password):
-    """Vérifie si le mot de passe est bon"""
-    users = charger_users()
-    # On compare le hash du mot de passe entré avec celui stocké
-    if username in users and users[username] == hash_mdp(password):
-        return True
-    return False
+    """Vérifie les identifiants via Firestore."""
+    try:
+        # On va chercher le document de l'utilisateur
+        doc_ref = config.db.collection("users").document(username)
+        doc = doc_ref.get()
+
+        if doc.exists:
+            user_data = doc.to_dict()
+            # On compare le mot de passe hashé
+            if user_data.get("password") == hash_mdp(password):
+                return True
+                
+        return False
+    except:
+        return False

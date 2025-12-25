@@ -2,7 +2,7 @@ import streamlit as st
 import os
 from gestion_donnees import ajouter_ville, recuperer_villes, supprimer_ville
 from meteo_service import obtenir_meteo_actuelle, obtenir_prevision_meteo, analyser_meteo
-from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement, porter_vetement
+from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement, porter_vetement, supprimer_vetement
 from scanner_ia import scanner_dossier_images
 from authentification import verifier_connexion, creer_compte
 import config
@@ -311,20 +311,33 @@ elif menu == "👗 Ma Garde-Robe":
     for index, v in enumerate(vetements):
         with cols[index % 4]:
             try:
-                st.image(v['chemin_image'], use_container_width=True)
-                st.markdown(f"**{v['nom']}**")
-                
-                # Indicateur de propreté
-                if v['type'] == 't-shirt': limite = 1 
-                elif v['type'] in ['bas', 'haut']: limite = 3
-                else: limite = 100
-                
-                if v['nb_portes'] >= limite:
-                    st.error(f"Sale ({v['nb_portes']} ports)")
-                else:
-                    st.success(f"Propre ({v['nb_portes']} ports)")
+                with st.container(border=True):
+                    st.image(v['chemin_image'], use_container_width=True)
+                    st.markdown(f"**{v['nom']}**")
                     
-                st.caption(f"ID: {v['id']} | {v['style']}")
+                    # Indicateur de propreté
+                    if v['type'] == 't-shirt': limite = 1 
+                    elif v['type'] in ['bas', 'haut']: limite = 3
+                    else: limite = 100
+                    
+                    if v['nb_portes'] >= limite:
+                        st.error(f"Sale ({v['nb_portes']} ports)")
+                    else:
+                        st.success(f"Propre ({v['nb_portes']} ports)")
+                        
+                    st.caption(f"{v['style']}")
+
+                    # Bouton de suppression
+                    # On utilise une clé unique (key=...) sinon Streamlit s'embrouille
+                    if st.button("🗑️ Suppr.", key=f"del_{v['id']}"):
+                        succes, msg = supprimer_vetement(username, v['id'])
+                        if succes:
+                            st.toast(msg, icon="🗑️")
+                            import time
+                            time.sleep(1)
+                            st.rerun() # Recharge la page pour faire disparaître l'image
+                        else:
+                            st.error(msg)
             except:
                 st.warning(f"Image introuvable : {v['nom']}")
 

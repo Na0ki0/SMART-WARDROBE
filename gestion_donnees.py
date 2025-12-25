@@ -1,67 +1,60 @@
-import json
-import os
 import config
 
-def _get_path_prefs(username):
-    # Chaque user a son fichier de préférences dans son dossier
-    return os.path.join("data", username, "preferences.json")
-
-def _charger_db_user(username):
-    path = _get_path_prefs(username) # <-- On a le bon chemin
-    if not os.path.exists(path):
-        donnees_base = {
-            "villes_favorites": ["Paris", "Lyon", "Marseille", "Bordeaux"],
-            "preferences_style": {},
-            "profil_utilisateur": {}
-        }
-        _sauvegarder_db_user(username, donnees_base) # Appel corrigé
-        return donnees_base
-    
-    try:
-        # ERREUR DANS TON CODE : open(config.FICHIER_PREFERENCES...)
-        # CORRECTION : open(path...)
-        with open(path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except:
-        return {"villes_favorites": ["Paris"]}
-
-def _sauvegarder_db_user(username, donnees):
-    path = _get_path_prefs(username)
-    # ERREUR DANS TON CODE : open(config.FICHIER_PREFERENCES...)
-    # CORRECTION : open(path...)
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(donnees, f, indent=4, ensure_ascii=False)
-
-# --- FONCTIONS SPÉCIFIQUES AUX VILLES ---
-
 def recuperer_villes(username):
-    """Renvoie uniquement la liste des villes."""
-    db = _charger_db_user(username)
-    return db.get("villes_favorites", [])
+    """Récupère la liste des villes depuis Firestore."""
+    try:
+        doc_ref = config.db.collection("users").document(username)
+        doc = doc_ref.get()
+        
+        if doc.exists:
+            # On renvoie la liste ou une liste vide si le champ n'existe pas
+            return doc.to_dict().get("villes_favorites", [])
+        return []
+    except Exception as e:
+        print(f"Erreur lecture villes : {e}")
+        return []
 
 def ajouter_ville(nom_ville, username):
-    """Ajoute une ville à la liste."""
-    db = _charger_db_user(username)
-    villes = db.get("villes_favorites", [])
-    
+    """Ajoute une ville dans la liste Firestore."""
     nom_propre = nom_ville.strip().title()
     
-    if nom_propre not in villes:
-        villes.append(nom_propre)
-        db["villes_favorites"] = villes # Mise à jour du dict
-        _sauvegarder_db_user(username, db)     # Sauvegarde globale
-        return True, f"✅ {nom_propre} ajoutée !"
-    else:
-        return False, f"⚠️ {nom_propre} est déjà là."
+    try:
+        doc_ref = config.db.collection("users").document(username)
+        doc = doc_ref.get()
+        
+        if doc.exists:
+            donnees = doc.to_dict()
+            villes = donnees.get("villes_favorites", [])
+            
+            if nom_propre not in villes:
+                villes.append(nom_propre)
+                # MISE À JOUR DANS LE CLOUD
+                doc_ref.update({"villes_favorites": villes})
+                return True, f"✅ {nom_propre} ajoutée (Cloud) !"
+            else:
+                return False, f"⚠️ {nom_propre} est déjà là."
+        return False, "Utilisateur introuvable."
+        
+    except Exception as e:
+        return False, f"Erreur Cloud : {e}"
 
 def supprimer_ville(nom_ville, username):
-    """Supprime une ville."""
-    db = _charger_db_user(username)
-    villes = db.get("villes_favorites", [])
-    
-    if nom_ville in villes:
-        villes.remove(nom_ville)
-        db["villes_favorites"] = villes
-        _sauvegarder_db_user(username, db)
-        return True
-    return False
+    """Supprime une ville de la liste Firestore."""
+    try:
+        doc_ref = config.db.collection("users").document(username)
+        doc = doc_ref.get()
+        
+        if doc.exists:
+            donnees = doc.to_dict()
+            villes = donnees.get("villes_favorites", [])
+            
+            if nom_ville in villes:
+                villes.remove(nom_ville)
+                # MISE À JOUR DANS LE CLOUD
+                doc_ref.update({"villes_favorites": villes})
+                return True
+                
+        return False
+    except Exception as e:
+        print(f"Erreur suppression : {e}")
+        return False
