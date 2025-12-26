@@ -21,7 +21,7 @@
 
 * **Langage :** Python 3.8+
 * **Interface :** [Streamlit](https://streamlit.io/)
-* **Intelligence Artificielle :** Google Gemini 1.5 Flash
+* **Intelligence Artificielle :** Google Gemini 2.5 Flash
 * **Base de Données :** Google Firestore (NoSQL)
 * **Stockage Images :** Cloudinary
 * **Météo :** OpenWeatherMap API
