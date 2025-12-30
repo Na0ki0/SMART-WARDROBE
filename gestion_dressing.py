@@ -91,8 +91,6 @@ def supprimer_vetement(username, id_vetement):
     except Exception as e:
         return False, f"Erreur suppression : {e}"
 
-# --- FONCTIONS UTILITAIRES (Inchangées) ---
-
 def est_propre(v):
     if v.get('type') == 't-shirt': limite = 1
     elif v.get('type') in ['bas', 'haut']: limite = 3

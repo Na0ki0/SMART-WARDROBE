@@ -63,12 +63,9 @@ def obtenir_emoji(description):
 
 def formater_date_fr(date_str):
     """Transforme '2023-12-25 12:00:00' en 'Lundi 25 décembre'"""
-    # 1. On convertit le texte en objet Date
     dt = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
     
-    # 2. Listes manuelles (pour éviter les bugs de serveur)
     jours = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]
     mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"]
     
-    # 3. On construit la belle chaîne
     return f"{jours[dt.weekday()]} {dt.day} {mois[dt.month-1]}"

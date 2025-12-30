@@ -42,7 +42,7 @@ def analyser_vetement_sur_image(chemin_image):
             else: return [{"erreur": "L'IA a renvoyé une liste vide."}]
         
         donnees_json['nb_portes'] = 0
-        donnees_json['chemin_image'] = chemin_absolu # Temporaire, sera remplacé par l'URL Cloud
+        donnees_json['chemin_image'] = chemin_absolu 
         
         message.append({"donnee": donnees_json})
         return message
@@ -52,12 +52,12 @@ def analyser_vetement_sur_image(chemin_image):
         return message
 
 def sauvegarder_dans_dressing(nouvel_objet, username):
-    if not nouvel_objet: return
+    if not nouvel_objet: return {"erreur": "Objet vide"}
 
     try:
         collection_ref = config.db.collection("users").document(username).collection("garde_robe")
         
-        # On vérifie les doublons par NOM pour éviter de spammer Cloudinary
+        # Vérification doublons par nom
         docs = collection_ref.where("nom", "==", nouvel_objet['nom']).stream()
         for doc in docs:
              return {"erreur": f"⏩ DÉJÀ PRÉSENT (Nom similaire) : {nouvel_objet['nom']}"}
@@ -66,64 +66,49 @@ def sauvegarder_dans_dressing(nouvel_objet, username):
         update_time, doc_ref = collection_ref.add(nouvel_objet)
         doc_ref.update({"id": doc_ref.id})
         
-        return {"message": f"✅ AJOUTÉ (Cloud) : {nouvel_objet['nom']}"}
+        return {"message": f"✅ AJOUTÉ : {nouvel_objet['nom']}"}
         
     except Exception as e:
         return {"erreur": f"Erreur sauvegarde Cloud : {e}"}
 
-def scanner_dossier_images(username):
-    message = []
-    # Dossier tampon local
-    dossier_images_user = os.path.join("data", username, "images")
+# --- NOUVELLE FONCTION "TOUT EN UN" ---
+def traiter_et_sauvegarder_image(chemin_complet, username):
+    """Orchestre tout le processus pour UNE image."""
+    logs = []
+    
+    # 1. Analyse IA
+    resultat = analyser_vetement_sur_image(chemin_complet)
 
-    if not os.path.exists(dossier_images_user):
-        return {"erreur": f"Dossier introuvable : {dossier_images_user}"}
-
-    fichiers = os.listdir(dossier_images_user)
-    images_trouvees = [f for f in fichiers if f.lower().endswith(('.png', '.jpg', '.jpeg', '.webp'))]
-
-    if not images_trouvees:
-        return {"erreur": f"📭 Aucun nouveau fichier à traiter."}
-
-    message.append(f"🚀 Traitement de {len(images_trouvees)} images pour {username}...\n")
-
-    for fichier in images_trouvees:
-        chemin_complet = os.path.join(dossier_images_user, fichier)
-        
-        # 1. Analyse locale
-        resultat = analyser_vetement_sur_image(chemin_complet)
-
-        for item in resultat:
-            if "donnee" in item:
-                donnees = item["donnee"]
+    for item in resultat:
+        if "donnee" in item:
+            donnees = item["donnee"]
+            
+            # 2. Upload Cloudinary
+            try:
+                reponse_cloud = cloudinary.uploader.upload(
+                    chemin_complet,
+                    folder=f"smart_wardrobe/{username}" 
+                )
+                url_image = reponse_cloud['secure_url']
+                donnees['chemin_image'] = url_image
                 
-                # 2. UPLOAD VERS CLOUDINARY AVEC DOSSIER
-                try:
-                    # C'est ICI que ça se joue : folder="..."
-                    reponse_cloud = cloudinary.uploader.upload(
-                        chemin_complet,
-                        folder=f"smart_wardrobe/{username}" 
-                    )
-                    url_image = reponse_cloud['secure_url']
-                    
-                    # On remplace le chemin local par l'URL Cloudinary
-                    donnees['chemin_image'] = url_image
-                    
-                    # 3. Sauvegarde Firestore
-                    sauvegarde = sauvegarder_dans_dressing(donnees, username)
-                    
-                    if sauvegarde and "message" in sauvegarde:
-                        message.append(sauvegarde["message"])
-                        # 4. Suppression locale
+                # 3. Sauvegarde Firestore
+                sauvegarde = sauvegarder_dans_dressing(donnees, username)
+                
+                if sauvegarde and "message" in sauvegarde:
+                    logs.append(sauvegarde["message"])
+                    # 4. Suppression locale
+                    try:
                         os.remove(chemin_complet)
-                        
-                    elif sauvegarde and "erreur" in sauvegarde:
-                        message.append(sauvegarde["erreur"])
-                        
-                except Exception as e_cloud:
-                    message.append(f"❌ Erreur Upload Cloudinary pour {fichier}: {e_cloud}")
+                    except: pass
+                    
+                elif sauvegarde and "erreur" in sauvegarde:
+                    logs.append(sauvegarde["erreur"])
+                    
+            except Exception as e_cloud:
+                logs.append(f"❌ Erreur Upload Cloudinary : {e_cloud}")
 
-            elif "erreur" in item:
-                message.append(item["erreur"])
-
-    return message
+        elif "erreur" in item:
+            logs.append(item["erreur"])
+            
+    return logs
