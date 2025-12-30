@@ -25,7 +25,6 @@ def pimper_interface():
     <style>
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
-        header {visibility: hidden;}
         h1 {text-align: center; font-weight: 300; letter-spacing: 2px;}
         .stButton>button {
             border-radius: 25px;
@@ -113,21 +112,35 @@ with tab_home:
     st.markdown("---")
     
     # TENUE DU JOUR
-    st.subheader("✨ Inspiration du jour")
-    if st.button("Suggérer une tenue maintenant", type="primary"):
-        with st.spinner("Le styliste réfléchit..."):
-            vetements, _ = charger_garde_robe(username)
-            tenue = choisir_tenue(vetements, temp[0] if temp else 20, desc[0] if desc else "clair")
-            
-            if isinstance(tenue, list):
-                afficher_tenue(tenue, "Aujourd'hui")
-                if st.button("Je porte cette tenue !"):
-                    for v in tenue: porter_vetement(username, v['id'])
-                    st.toast("Tenue enregistrée !", icon="✅")
-                    time.sleep(1)
+    st.subheader("✨ Tenu pour demain")
+    if 'tenue_du_jour' not in st.session_state:
+        if st.button("Proposer une tenue pour demain"):
+            with st.spinner("Le styliste réfléchit..."):
+                vetements, _ = charger_garde_robe(username)
+                if date and temp and desc:
+                    tenue_jour = choisir_tenue(vetements, temp[0], desc[0])
+                    st.session_state['tenue_du_jour'] = tenue_jour
                     st.rerun()
-            else:
-                st.warning(tenue.get('erreur', 'Erreur inconnue'))
+                else:
+                    st.error("Météo indisponible.")
+    if 'tenue_du_jour' in st.session_state:
+        tenue = st.session_state['tenue_du_jour']
+        afficher_tenue(tenue, "Demain")
+
+        col_valid_sem, col_refus_sem = st.columns(2)
+        with col_valid_sem:
+            if st.button("✅ Valider la tenue", use_container_width=True):
+                vetements_a_jour, _ = charger_garde_robe(username)
+                for v in tenue: porter_vetement(username, v['id'])
+                st.balloons()
+                st.success("Planning enregistré !")
+                del st.session_state['tenue_du_jour']
+                time.sleep(2)
+                st.rerun()
+        with col_refus_sem:
+            if st.button("❌ Annuler", use_container_width=True):
+                del st.session_state['tenue_du_jour']
+                st.rerun()
 
     st.markdown("---")
 
