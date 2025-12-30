@@ -20,12 +20,6 @@ def creer_compte(username, password):
     if doc_ref.get().exists:
         return False, "Ce pseudo est déjà pris."
 
-    # 3. Création du dossier LOCAL pour les images (Transition V5 Phase 1)
-    # On garde ça pour l'instant car on n'a pas encore fait la Phase 2 (Cloudinary)
-    dossier_images = os.path.join("data", username, "images")
-    if not os.path.exists(dossier_images):
-        os.makedirs(dossier_images)
-
     # 4. Enregistrement dans Google Firestore
     # On crée le document avec le mot de passe hashé ET les préférences par défaut
     try:

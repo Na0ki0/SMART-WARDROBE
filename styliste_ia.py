@@ -7,6 +7,13 @@ from google.genai import types
 # Initialisation du client
 client = genai.Client(api_key=config.GOOGLE_API_KEY)
 
+def est_dispo(v):
+        nb = v.get('nb_portes', 0)
+        type_v = v.get('type', '').lower()
+        if type_v == 't-shirt': return nb < 1
+        if type_v in ['bas', 'haut']: return nb < 3
+        return nb < 100 # Vestes, chaussures, etc.
+
 def demander_conseil_styliste(vetements, temperature, description_meteo):
     """
     Version Cloud V5 : Envoie les métadonnées (texte) au lieu des images.
@@ -18,9 +25,7 @@ def demander_conseil_styliste(vetements, temperature, description_meteo):
     inventaire_texte = []
     
     for v in vetements:
-        # On vérifie si le vêtement est disponible (propre)
-        # Note: Tu peux adapter cette condition selon ta logique
-        if v.get('nb_portes', 0) < 5: 
+        if est_dispo(v): # On utilise la logique stricte
             info = {
                 "id": v.get('id'),
                 "nom": v.get('nom'),

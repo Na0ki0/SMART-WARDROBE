@@ -87,13 +87,19 @@ if not liste_villes: liste_villes = [config.VILLE_DEFAULT]
 choix_ville = st.sidebar.selectbox("📍 Ville", options=liste_villes + ["➕ Ajouter..."])
 
 if choix_ville == "➕ Ajouter...":
-    nouvelle = st.sidebar.text_input("Ville :")
-    if st.sidebar.button("OK"):
-        ajouter_ville(nouvelle, username)
-        st.rerun()
-    ville = config.VILLE_DEFAULT
+    with st.sidebar.form("ajout_ville"):
+        nouvelle = st.text_input("Ville :")
+        valider = st.form_submit_button("OK")
+        if valider:
+            ajouter_ville(nouvelle, username)
+            st.rerun()
+    ville = config.VILLE_DEFAULT # On reste sur la ville par défaut pendant la saisie
 else:
     ville = choix_ville
+    st.sidebar.markdown("---")
+    if st.sidebar.button(f"🗑️ Supprimer {ville}", key=f"del_city_{ville}"):
+        supprimer_ville(ville, username)
+        st.rerun()
 
 st.title("👗 Smart Wardrobe")
 tab_home, tab_dressing, tab_laundry, tab_scan = st.tabs(["🏠 Accueil", "👗 Dressing", "🧺 Buanderie", "📸 Scanner"])
