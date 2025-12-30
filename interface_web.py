@@ -277,7 +277,7 @@ with tab_laundry:
                     st.rerun()
 
 with tab_social:
-    st.header("👥 Réseau Social Mode")
+    st.header("👥 Mes Amis")
 
     # 1. NOTIFICATIONS (Demandes reçues)
     demandes = recuperer_demandes_attente(username)
