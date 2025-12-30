@@ -5,6 +5,7 @@ from meteo_service import obtenir_meteo_actuelle, obtenir_prevision_meteo, analy
 from gestion_dressing import charger_garde_robe, choisir_tenue, prevision_semaine, laver_vetement, porter_vetement, supprimer_vetement
 from scanner_ia import traiter_et_sauvegarder_image
 from authentification import verifier_connexion, creer_compte
+from gestion_social import envoyer_demande_ami, accepter_demande, refuser_demande, recuperer_demandes_attente, recuperer_amis, supprimer_ami
 import config
 import time
 
@@ -37,7 +38,6 @@ def pimper_interface():
     </style>
     """, unsafe_allow_html=True)
 
-# --- CONFIGURATION DE LA PAGE ---
 st.set_page_config(page_title="Smart Wardrobe V5", page_icon="👔", layout="wide")
 pimper_interface()
 
@@ -102,7 +102,7 @@ else:
         st.rerun()
 
 st.title("👗 Smart Wardrobe")
-tab_home, tab_dressing, tab_laundry, tab_scan = st.tabs(["🏠 Accueil", "👗 Dressing", "🧺 Buanderie", "📸 Scanner"])
+tab_home, tab_dressing, tab_laundry, tab_social, tab_scan = st.tabs(["🏠 Accueil", "👗 Dressing", "🧺 Buanderie", "👥 Social", "📸 Scanner"])
 
 with tab_home:
     st.header(f"Bonjour, météo à {ville}")
@@ -275,6 +275,81 @@ with tab_laundry:
                     st.snow()
                     st.toast("Panier lavé !")
                     st.rerun()
+
+with tab_social:
+    st.header("👥 Réseau Social Mode")
+
+    # 1. NOTIFICATIONS (Demandes reçues)
+    demandes = recuperer_demandes_attente(username)
+    if demandes:
+        st.info(f"🔔 Tu as {len(demandes)} nouvelle(s) demande(s) d'ami !")
+        for demandeur in demandes:
+            col_txt, col_ok, col_no = st.columns([3, 1, 1])
+            col_txt.markdown(f"**{demandeur}** veut voir ton dressing.")
+            
+            if col_ok.button("✅ Accepter", key=f"acc_{demandeur}"):
+                succes, msg = accepter_demande(username, demandeur)
+                if succes: st.success(msg)
+                st.rerun()
+            
+            if col_no.button("❌ Refuser", key=f"ref_{demandeur}"):
+                refuser_demande(username, demandeur)
+                st.rerun()
+        st.markdown("---")
+
+    # 2. CHERCHER / AJOUTER
+    with st.expander("➕ Chercher un ami", expanded=False):
+        c1, c2 = st.columns([3, 1])
+        pseudo_dest = c1.text_input("Pseudo de l'ami", label_visibility="collapsed", placeholder="Ex: SophieMode")
+        if c2.button("Envoyer demande"):
+            succes, msg = envoyer_demande_ami(username, pseudo_dest)
+            if succes: st.success(msg)
+            else: st.warning(msg)
+
+    # 3. MES AMIS & DRESSINGS
+    st.subheader("Mes Amis")
+    liste_amis = recuperer_amis(username)
+    
+    if not liste_amis:
+        st.caption("Ta liste d'amis est vide. Lance des invitations !")
+    else:
+        # Sélecteur d'ami
+        ami_selectionne = st.selectbox("👗 Voir le dressing de :", ["-- Choisir --"] + liste_amis)
+        
+        if ami_selectionne != "-- Choisir --":
+            c_titre, c_delete = st.columns([3, 1])
+            with c_titre:
+                st.markdown(f"### Garde-robe de **{ami_selectionne}**")
+            
+            with c_delete:
+                # Le bouton rouge pour supprimer
+                if st.button("💔 Retirer ami", key=f"delete_{ami_selectionne}", type="secondary"):
+                    succes, msg = supprimer_ami(username, ami_selectionne)
+                    if succes:
+                        st.toast(msg, icon="💔")
+                        import time
+                        time.sleep(1)
+                        st.rerun() # On recharge pour mettre à jour la liste
+                    else:
+                        st.error(msg)
+
+            # Chargement du dressing de l'ami
+            vetements_ami, _ = charger_garde_robe(ami_selectionne)
+            
+            if not vetements_ami:
+                st.warning(f"{ami_selectionne} n'a pas encore ajouté de vêtements.")
+            else:
+                # Affichage Read-Only (Pas de boutons d'action)
+                cols = st.columns(4)
+                for index, v in enumerate(vetements_ami):
+                    with cols[index % 4]:
+                        with st.container(border=True):
+                            st.image(v['chemin_image'], use_container_width=True)
+                            st.caption(f"**{v['nom']}**")
+                            
+                            # Petit système de Like "fictif" (Interaction UI)
+                            if st.button("🔥 J'adore", key=f"like_{v['id']}"):
+                                st.toast(f"Tu as envoyé du feu à {ami_selectionne} !", icon="🔥")
 
 with tab_scan:
     st.header("Ajouter des vêtements")

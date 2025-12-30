@@ -71,9 +71,7 @@ def sauvegarder_dans_dressing(nouvel_objet, username):
     except Exception as e:
         return {"erreur": f"Erreur sauvegarde Cloud : {e}"}
 
-# --- NOUVELLE FONCTION "TOUT EN UN" ---
 def traiter_et_sauvegarder_image(chemin_complet, username):
-    """Orchestre tout le processus pour UNE image."""
     logs = []
     
     # 1. Analyse IA
